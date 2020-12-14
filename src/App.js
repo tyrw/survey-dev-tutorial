@@ -1,3 +1,4 @@
+import axios from "axios";
 import React from "react";
 import {
   BrowserRouter as Router,
@@ -10,10 +11,23 @@ import * as SurveyJS from "survey-react";
 import "survey-react/modern.css";
 import questions from "./questions.js";
 
+import Userfront from "@userfront/react";
+
+Userfront.init("5xbpy4nz");
+const SignupForm = Userfront.build({
+  toolId: "mnbrak",
+});
+const LoginForm = Userfront.build({
+  toolId: "nadrrd",
+});
+const isLoggedIn = () => !!Userfront.accessToken();
+
 SurveyJS.StylesManager.applyTheme("modern");
 const survey = new SurveyJS.Model(questions);
 survey.onComplete.add((result) => {
-  console.log(result.data);
+  axios.post("http://localhost:5000/survey-responses", {
+    data: result.data,
+  });
 });
 
 function App() {
@@ -85,26 +99,46 @@ function Results() {
 }
 
 function Signup() {
-  return <div className="container">Signup</div>;
+  return (
+    <div className="container py-5">
+      <SignupForm />
+    </div>
+  );
 }
 
 function Login() {
-  return <div className="container">Login</div>;
+  return (
+    <div className="container py-5">
+      <LoginForm />
+    </div>
+  );
 }
 
 function AuthButtons() {
-  return (
-    <ul className="navbar-nav ml-auto">
-      <li className="nav-item">
-        <NavLink to="/login" className="nav-link">
-          Login
-        </NavLink>
-      </li>
-      <li className="nav-item">
-        <NavLink to="/signup" className="nav-link">
-          Signup
-        </NavLink>
-      </li>
-    </ul>
-  );
+  if (Userfront.accessToken()) {
+    return (
+      <ul className="navbar-nav ml-auto">
+        <li className="nav-item">
+          <button className="btn btn-link nav-link" onClick={Userfront.logout}>
+            Logout
+          </button>
+        </li>
+      </ul>
+    );
+  } else {
+    return (
+      <ul className="navbar-nav ml-auto">
+        <li className="nav-item">
+          <NavLink to="/login" className="nav-link">
+            Login
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink to="/signup" className="nav-link">
+            Signup
+          </NavLink>
+        </li>
+      </ul>
+    );
+  }
 }

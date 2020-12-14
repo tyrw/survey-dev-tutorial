@@ -13,7 +13,15 @@ app.all(["/survey-responses", "/results"], (req, res, next) => {
 });
 
 app.post("/survey-responses", async (req, res) => {
-  return res.send("Coming soon");
+  try {
+    const surveyResponse = await sequelize.models.SurveyResponse.create({
+      userId: 88,
+      data: req.body.data,
+    });
+    return res.send(surveyResponse);
+  } catch (err) {
+    return res.status(401).send("Unauthorized");
+  }
 });
 
 app.get("/survey-responses", async (req, res) => {
